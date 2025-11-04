@@ -17,6 +17,7 @@ from pydantic import BaseModel
 
 from .text_to_ir import TextToIR_Pydantic_Complete
 from .ir_models import NL2SQL_IR
+from .llm_config import configure_azure_openai
 from sql_compiler import SQLCompiler
 
 
@@ -278,21 +279,10 @@ def main():
     
     print("初始化 NL2SQL 流程...")
     
-    # 配置 DSPy LLM
-    # 选项1: OpenAI
-    # gpt4_turbo = dspy.OpenAI(
-    #     model='gpt-4-1106-preview',
-    #     api_key='YOUR_API_KEY',
-    #     max_tokens=4096
-    # )
-    # dspy.settings.configure(lm=gpt4_turbo)
-    
-    # 选项2: 本地 Ollama
-    ollama_lm = dspy.OllamaLocal(
-        model='llama3',
-        max_tokens=4096
-    )
-    dspy.settings.configure(lm=ollama_lm)
+    # 配置 DSPy LLM (使用 Azure OpenAI)
+    print("配置 Azure OpenAI LLM...")
+    lm = configure_azure_openai()
+    print(f"✓ LLM 配置完成\n")
     
     # 初始化流程
     pipeline = NL2SQLPipeline()

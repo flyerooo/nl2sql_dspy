@@ -23,6 +23,16 @@ conda activate ml310
 pip install dspy-ai pydantic json5
 ```
 
+### Setup API Key
+**Required**: Set Azure OpenAI API key before running any code.
+
+See [SETUP.md](../SETUP.md) for detailed instructions.
+
+```pwsh
+# Quick setup (PowerShell)
+$env:AZURE_OPENAI_API_KEY="your-api-key-here"
+```
+
 ### Run Main Pipeline
 ```pwsh
 conda activate ml310
@@ -108,25 +118,44 @@ The system decouples LLM understanding from SQL generation through a structured 
 
 ## LLM Configuration
 
-Before running any scripts, configure DSPy with your LLM in the main file or test script:
+**Default: Azure OpenAI** (configured in `llm_config.py`)
 
-**Option 1: OpenAI**
+The project uses Azure OpenAI by default:
 ```python
-gpt4_turbo = dspy.OpenAI(
-    model='gpt-4-1106-preview',
-    api_key='YOUR_API_KEY',
-    max_tokens=4096
-)
-dspy.settings.configure(lm=gpt4_turbo)
+from llm_config import configure_azure_openai
+
+# Automatically configures Azure OpenAI
+lm = configure_azure_openai()
 ```
 
-**Option 2: Local Ollama** (default in examples)
+**Configuration Details:**
+- Endpoint: Korea Central Azure OpenAI
+- Model: gpt-5 deployment
+- API Version: 2024-06-01
+- Max Tokens: 4096
+
+**Using Environment Variable (Recommended for Production):**
 ```python
-ollama_lm = dspy.OllamaLocal(
-    model='llama3',
-    max_tokens=4096
-)
-dspy.settings.configure(lm=ollama_lm)
+# Set environment variable
+export AZURE_OPENAI_API_KEY="your-api-key"
+
+# Then use the configuration
+from llm_config import configure_azure_openai
+lm = configure_azure_openai()  # Will use env var if set
+```
+
+**Alternative LLMs:**
+To use different LLMs, modify `llm_config.py` or configure directly:
+```python
+import dspy
+
+# OpenAI
+lm = dspy.LM(model="gpt-4", api_key="...")
+dspy.configure(lm=lm)
+
+# Local Ollama
+lm = dspy.LM(model="ollama/llama3")
+dspy.configure(lm=lm)
 ```
 
 ## Entity Map Configuration
@@ -170,6 +199,7 @@ The codebase is organized into focused modules for clarity:
 - `text_to_ir.py` - Main pipeline orchestrating the three-stage parsing
 - `sql_compiler.py` - Deterministic IR-to-SQL compiler with JOIN resolution
 - `nl2sql_pipeline.py` - End-to-end NL2SQL orchestration
+- `llm_config.py` - Azure OpenAI LLM configuration
 
 **Import Patterns:**
 ```python
@@ -188,7 +218,8 @@ nl2sql_dspy/
 │   ├── ir_parsers.py             # DSPy parser modules (Stage 1-3)
 │   ├── text_to_ir.py             # Text-to-IR main pipeline
 │   ├── sql_compiler.py           # IR → SQL compiler with JOIN resolution
-│   └── nl2sql_pipeline.py        # End-to-end pipeline orchestration
+│   ├── nl2sql_pipeline.py        # End-to-end pipeline orchestration
+│   └── llm_config.py             # Azure OpenAI LLM configuration
 ├── tests/
 │   └── test_pipeline.py          # Integration tests
 └── data/

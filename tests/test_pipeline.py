@@ -11,30 +11,16 @@ from pathlib import Path
 # 添加 src 目录到 Python 路径
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-import dspy
 from nl2sql_pipeline import NL2SQLPipeline
+from llm_config import configure_azure_openai
 
 
 def setup_llm():
-    """配置 LLM"""
-    print("配置 LLM...")
-    
-    # 选项1: OpenAI (取消注释使用)
-    # gpt4_turbo = dspy.OpenAI(
-    #     model='gpt-4-1106-preview',
-    #     api_key='YOUR_API_KEY',
-    #     max_tokens=4096
-    # )
-    # dspy.settings.configure(lm=gpt4_turbo)
-    
-    # 选项2: 本地 Ollama
-    ollama_lm = dspy.OllamaLocal(
-        model='llama3',
-        max_tokens=4096
-    )
-    dspy.settings.configure(lm=ollama_lm)
-    
+    """配置 LLM (Azure OpenAI)"""
+    print("配置 Azure OpenAI LLM...")
+    lm = configure_azure_openai()
     print("✓ LLM 配置完成\n")
+    return lm
 
 
 def test_basic_queries():

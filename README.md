@@ -94,38 +94,55 @@
 ### 1. 安装依赖
 
 ```bash
+conda activate ml310
 pip install dspy-ai pydantic json5
 ```
 
-### 2. 配置 LLM
+### 2. 配置 API 密钥
 
-编辑 `src/nl2sql_pipeline.py` 或测试脚本,配置你的 LLM:
+**必须配置**: 设置 Azure OpenAI API 密钥环境变量
 
-```python
-# 选项1: OpenAI
-gpt4_turbo = dspy.OpenAI(
-    model='gpt-4-1106-preview',
-    api_key='YOUR_API_KEY',
-    max_tokens=4096
-)
-dspy.settings.configure(lm=gpt4_turbo)
-
-# 选项2: 本地 Ollama
-ollama_lm = dspy.OllamaLocal(
-    model='llama3',
-    max_tokens=4096
-)
-dspy.settings.configure(lm=ollama_lm)
+```powershell
+# Windows PowerShell
+$env:AZURE_OPENAI_API_KEY="your-api-key-here"
 ```
 
-### 3. 运行示例
+详细配置说明请参考 [SETUP.md](SETUP.md)。
+
+### 3. 配置 LLM
+
+项目默认使用 Azure OpenAI，配置已在 `src/llm_config.py` 中完成。
+
+如需修改配置，编辑 `src/llm_config.py`:
+
+```python
+def configure_azure_openai():
+    # Azure OpenAI 配置
+    azure_endpoint = "..."
+    deployment_name = "gpt-5"
+    api_version = "2024-06-01"
+    api_key = os.getenv("AZURE_OPENAI_API_KEY", "...")
+    
+    lm = dspy.LM(
+        model=f"azure/{deployment_name}",
+        api_base=azure_endpoint,
+        api_version=api_version,
+        api_key=api_key
+    )
+    dspy.configure(lm=lm)
+    return lm
+```
+
+**生产环境推荐**: 使用环境变量 `AZURE_OPENAI_API_KEY` 存储 API 密钥。
+
+### 4. 运行示例
 
 ```bash
 cd src
 python nl2sql_pipeline.py
 ```
 
-### 4. 运行测试
+### 5. 运行测试
 
 ```bash
 cd tests
@@ -209,6 +226,7 @@ nl2sql_dspy/
 │   ├── text_to_ir.py            # Text-to-IR 主流程
 │   ├── sql_compiler.py          # SQL 编译器
 │   ├── nl2sql_pipeline.py       # 端到端流程
+│   ├── llm_config.py            # Azure OpenAI 配置
 │   └── readme.md                # 架构说明
 ├── tests/
 │   └── test_pipeline.py         # 端到端测试
