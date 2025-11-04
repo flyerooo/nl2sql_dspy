@@ -209,7 +209,6 @@ nl2sql_dspy/
 │   ├── text_to_ir.py            # Text-to-IR 主流程
 │   ├── sql_compiler.py          # SQL 编译器
 │   ├── nl2sql_pipeline.py       # 端到端流程
-│   ├── clause_deconstructor.py  # 兼容层 (已弃用)
 │   └── readme.md                # 架构说明
 ├── tests/
 │   └── test_pipeline.py         # 端到端测试

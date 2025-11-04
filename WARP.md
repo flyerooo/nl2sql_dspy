@@ -169,18 +169,11 @@ The codebase is organized into focused modules for clarity:
 - `sql_compiler.py` - Deterministic IR-to-SQL compiler with JOIN resolution
 - `nl2sql_pipeline.py` - End-to-end NL2SQL orchestration
 
-**Legacy:**
-- `clause_deconstructor.py` - Compatibility layer (deprecated, imports from new modules)
-
 **Import Patterns:**
 ```python
-# Preferred - import from specific modules
 from ir_models import NL2SQL_IR, FilterGroup
 from ir_parsers import ClauseDeconstructor, FilterParser
 from text_to_ir import TextToIR_Pydantic_Complete
-
-# Deprecated - will show warning
-from clause_deconstructor import NL2SQL_IR  # Works but deprecated
 ```
 
 ## File Organization
@@ -193,8 +186,7 @@ nl2sql_dspy/
 │   ├── ir_parsers.py             # DSPy parser modules (Stage 1-3)
 │   ├── text_to_ir.py             # Text-to-IR main pipeline
 │   ├── sql_compiler.py           # IR → SQL compiler with JOIN resolution
-│   ├── nl2sql_pipeline.py        # End-to-end pipeline orchestration
-│   └── clause_deconstructor.py   # Compatibility layer (deprecated)
+│   └── nl2sql_pipeline.py        # End-to-end pipeline orchestration
 ├── tests/
 │   └── test_pipeline.py          # Integration tests
 └── data/
