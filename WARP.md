@@ -55,7 +55,7 @@ The system decouples LLM understanding from SQL generation through a structured 
 - Similar to FilterParser but operates on aggregated results
 - References projection aliases from Stage 1
 
-**Final Assembly**: `TextToIR_Pydantic_Complete` combines all stages into `ChatBI_IR` Pydantic model
+**Final Assembly**: `TextToIR_Pydantic_Complete` combines all stages into `NL2SQL_IR` Pydantic model
 
 ### Semantic Layer Architecture
 
@@ -74,7 +74,7 @@ The system decouples LLM understanding from SQL generation through a structured 
 
 ### Key Data Structures
 
-**ChatBI_IR** (final IR):
+**NL2SQL_IR** (final IR):
 ```python
 {
   "intent": str,

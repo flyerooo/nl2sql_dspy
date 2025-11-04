@@ -3,11 +3,9 @@ NL2SQL-IR 完整流程
 ====================
 
 这个模块整合了从自然语言问题到 SQL 查询的完整流程:
-1. 候选实体提取 (IndexExtraction + AttributeExtraction 的简化版)
+1. 候选实体提取 (SimpleCandidateExtractor)
 2. 问题解构为中间表示 (ClauseDeconstructor)
 3. 中间表示编译为 SQL (SQLCompiler)
-
-这是一个独立运行的版本,不需要完整的 Chat-BI 环境。
 """
 
 import dspy
@@ -19,7 +17,7 @@ from pydantic import BaseModel
 
 from clause_deconstructor import (
     TextToIR_Pydantic_Complete,
-    ChatBI_IR
+    NL2SQL_IR
 )
 from sql_compiler import SQLCompiler
 
@@ -75,10 +73,8 @@ class SimpleCandidateExtractor:
     """
     简化版的候选实体提取器
     
-    在完整的 Chat-BI 系统中,这个功能由 IndexExtraction 和 AttributeExtraction 完成,
-    它们使用向量检索和 LLM 来缩小候选范围。
-    
-    这里我们使用一个简化版本:基于关键词匹配来筛选候选实体。
+    基于关键词匹配来筛选候选实体。
+    可以替换为更复杂的实现(向量检索、LLM理解等)。
     """
     
     def __init__(self, entity_map_loader: EntityMapLoader):
@@ -179,15 +175,15 @@ class NL2SQLPipeline:
         Args:
             entity_map_path: 语义层配置文件路径
             use_simple_extractor: 是否使用简化版候选提取器
-                                 (False时需要配置完整的 Chat-BI 环境)
+                                 (False时需要提供自定义实现)
         """
         self.entity_map_loader = EntityMapLoader(entity_map_path)
         
         if use_simple_extractor:
             self.candidate_extractor = SimpleCandidateExtractor(self.entity_map_loader)
         else:
-            # TODO: 集成完整的 IndexExtraction + AttributeExtraction
-            raise NotImplementedError("完整的候选提取器尚未集成")
+            # 需要手动设置 self.candidate_extractor 为自定义实现
+            raise NotImplementedError("请提供自定义的候选提取器实现")
         
         # 初始化 IR 生成器 (DSPy模块)
         self.ir_generator = TextToIR_Pydantic_Complete()
@@ -238,7 +234,7 @@ class NL2SQLPipeline:
             attribute_enum_values=candidates["enum_values"]
         )
         
-        ir: ChatBI_IR = result.ir
+        ir: NL2SQL_IR = result.ir
         
         if verbose:
             print(f"  Intent: {ir.intent}")

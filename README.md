@@ -11,7 +11,7 @@
 - [项目结构](#项目结构)
 - [配置说明](#配置说明)
 - [测试](#测试)
-- [与 Chat-BI 集成](#与-chat-bi-集成)
+- [开发指南](#开发指南)
 
 ## 项目概述
 
@@ -50,7 +50,7 @@
 │ 步骤1: 候选实体提取                  │
 │ (SimpleCandidateExtractor)          │
 │ - 基于关键词匹配筛选相关实体         │
-│ - 可替换为完整的 Chat-BI 组件        │
+│ - 可替换为更复杂的语义检索系统       │
 └────────┬────────────────────────────┘
          │
          ▼
@@ -176,17 +176,24 @@ print(result["sql"])
 }
 ```
 
-### 高级:集成 Chat-BI 组件
+### 高级:自定义候选提取器
 
-要使用完整的 IndexExtraction 和 AttributeExtraction:
+可以替换默认的 `SimpleCandidateExtractor` 为更复杂的实现:
 
 ```python
-# 1. 确保 Chat-BI 项目在可访问路径
-# 2. 修改 nl2sql_pipeline.py
-from chatbi.pipeline.index_extraction import IndexExtraction
-from chatbi.pipeline.attribute_extraction import AttributeExtraction
+# 实现自定义提取器
+class CustomCandidateExtractor:
+    def extract_candidates(self, question: str) -> Dict[str, Any]:
+        # 使用向量检索、LLM等方法提取候选实体
+        return {
+            "metrics": [...],
+            "attributes": [...],
+            "enum_values": {...}
+        }
 
+# 使用自定义提取器
 pipeline = NL2SQLPipeline(use_simple_extractor=False)
+pipeline.candidate_extractor = CustomCandidateExtractor()
 ```
 
 ## 项目结构
@@ -255,36 +262,25 @@ python tests/test_pipeline.py
 - ✓ 复杂查询(多条件过滤、排序、分页)
 - ✓ 错误处理(边界情况)
 
-## 与 Chat-BI 集成
+## 候选实体提取
 
-本项目是 [Chat-BI](https://github.com/your-org/chat-BI) 的 NL2SQL-IR 子项目。
+### SimpleCandidateExtractor
 
-### 共享组件
+项目使用 `SimpleCandidateExtractor` 进行候选实体提取:
 
-根据项目规则,本项目复用了 Chat-BI 的以下组件:
+**工作原理:**
+- 基于关键词模糊匹配从 `entity_map.json5` 中筛选相关实体
+- 检查实体名称的子串是否出现在用户问题中
+- 如果匹配数量过少,返回所有候选实体
 
-1. **IndexExtraction**: 从问题中提取候选指标
-   - 使用向量检索和 LLM
-   - 支持指标树展开
+**优点:**
+- 简单快速,无需额外依赖
+- 适合快速原型和中小规模应用
 
-2. **AttributeExtraction**: 从问题中提取候选属性
-   - 使用字典树匹配
-   - 支持属性值规范化
-
-3. **共享数据源**: 
-   - Excel 配置文件(entity_map)
-   - 语义层定义
-
-### 独立运行 vs 完整集成
-
-**当前(独立运行):**
-- 使用 `SimpleCandidateExtractor` 进行关键词匹配
-- 适合快速原型和测试
-
-**完整集成:**
-- 使用 Chat-BI 的完整 IndexExtraction + AttributeExtraction
-- 更准确的候选实体提取
-- 需要配置 Chat-BI 环境(向量数据库等)
+**扩展方向:**
+- 使用向量检索进行语义匹配
+- 结合 LLM 理解问题意图
+- 添加实体树结构支持层级关系
 
 ## 开发指南
 
@@ -356,7 +352,7 @@ MIT License
 
 - [DSPy 文档](https://dspy-docs.vercel.app/)
 - [Pydantic 文档](https://docs.pydantic.dev/)
-- [Chat-BI 主项目](../chat-BI)
+- [JSON5 规范](https://json5.org/)
 
 ---
 

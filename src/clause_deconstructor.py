@@ -77,7 +77,8 @@ class DeconstructedClauses(BaseModel):
 
 # --- 最终 IR 模型 (我们希望得到的最终产品) ---
 
-class ChatBI_IR(BaseModel):
+# 保留别名以兼容旧代码
+class NL2SQL_IR(BaseModel):
     """
     代表最终的、完整的 IR 对象。
     所有字段都是结构化的。
@@ -245,7 +246,7 @@ class HavingParser(dspy.Module):
 class TextToIR_Pydantic_Complete(dspy.Module):
     """
     (完整版)
-    使用三阶段 Pydantic TypedPredictor 流水线将 NL 转换为最终的 ChatBI_IR
+    使用三阶段 Pydantic TypedPredictor 流水线将 NL 转换为最终的 NL2SQL_IR
 
     此版本接受预先筛选的候选实体和枚举值，以提高准确性。
     """
@@ -310,7 +311,7 @@ class TextToIR_Pydantic_Complete(dspy.Module):
 
                 # --- 组装: 确定性的 Python 代码 ---
         # 我们在这里组装最终的、完整的 IR Pydantic 对象
-        final_ir = ChatBI_IR(
+        final_ir = NL2SQL_IR(
             intent=deconstructed_clauses.intent,
             projections=deconstructed_clauses.projections,
             filters=parsed_filter_group,
