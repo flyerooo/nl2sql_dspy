@@ -15,10 +15,8 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any
 from pydantic import BaseModel
 
-from clause_deconstructor import (
-    TextToIR_Pydantic_Complete,
-    NL2SQL_IR
-)
+from .text_to_ir import TextToIR_Pydantic_Complete
+from .ir_models import NL2SQL_IR
 from sql_compiler import SQLCompiler
 
 

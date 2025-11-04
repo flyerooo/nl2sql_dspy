@@ -204,9 +204,12 @@ nl2sql_dspy/
 ├── entity_map.json5             # 语义层配置
 ├── src/
 │   ├── __init__.py
-│   ├── clause_deconstructor.py  # IR 生成(DSPy 模块)
+│   ├── ir_models.py             # IR 数据模型 (Pydantic)
+│   ├── ir_parsers.py            # DSPy 解析器模块
+│   ├── text_to_ir.py            # Text-to-IR 主流程
 │   ├── sql_compiler.py          # SQL 编译器
-│   ├── nl2sql_pipeline.py       # 完整流程
+│   ├── nl2sql_pipeline.py       # 端到端流程
+│   ├── clause_deconstructor.py  # 兼容层 (已弃用)
 │   └── readme.md                # 架构说明
 ├── tests/
 │   └── test_pipeline.py         # 端到端测试

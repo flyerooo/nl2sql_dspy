@@ -41,7 +41,7 @@ Open `tests/test_pipeline.py` and execute specific test functions:
 
 The system decouples LLM understanding from SQL generation through a structured IR:
 
-**Stage 1: ClauseDeconstructor** (`clause_deconstructor.py`)
+**Stage 1: ClauseDeconstructor** (`ir_parsers.py`)
 - Uses `dspy.TypedPredictor` to parse NL query into `DeconstructedClauses` Pydantic model
 - Extracts: projections, group_by, order_by, limit, offset
 - Defers complex parsing by outputting NL strings for filters/having
@@ -55,7 +55,7 @@ The system decouples LLM understanding from SQL generation through a structured 
 - Similar to FilterParser but operates on aggregated results
 - References projection aliases from Stage 1
 
-**Final Assembly**: `TextToIR_Pydantic_Complete` combines all stages into `NL2SQL_IR` Pydantic model
+**Final Assembly**: `TextToIR_Pydantic_Complete` (`text_to_ir.py`) combines all stages into `NL2SQL_IR` Pydantic model
 
 ### Semantic Layer Architecture
 
@@ -149,15 +149,43 @@ The pipeline uses `SimpleCandidateExtractor` for keyword-based entity matching:
 - Provides enum values for candidate attributes to aid LLM normalization
 - Suitable for most use cases; can be replaced with more sophisticated retrieval systems if needed
 
+## Module Structure
+
+The codebase is organized into focused modules for clarity:
+
+**Core Modules:**
+- `ir_models.py` - Pydantic models for IR data structures (no DSPy dependency)
+- `ir_parsers.py` - Three DSPy modules for parsing NL to IR components
+- `text_to_ir.py` - Main pipeline orchestrating the three-stage parsing
+- `sql_compiler.py` - Deterministic IR-to-SQL compiler with JOIN resolution
+- `nl2sql_pipeline.py` - End-to-end NL2SQL orchestration
+
+**Legacy:**
+- `clause_deconstructor.py` - Compatibility layer (deprecated, imports from new modules)
+
+**Import Patterns:**
+```python
+# Preferred - import from specific modules
+from ir_models import NL2SQL_IR, FilterGroup
+from ir_parsers import ClauseDeconstructor, FilterParser
+from text_to_ir import TextToIR_Pydantic_Complete
+
+# Deprecated - will show warning
+from clause_deconstructor import NL2SQL_IR  # Works but deprecated
+```
+
 ## File Organization
 
 ```
 nl2sql_dspy/
 ├── entity_map.json5              # Semantic layer configuration
 ├── src/
-│   ├── clause_deconstructor.py   # Stage 1-3: IR generation (DSPy modules)
+│   ├── ir_models.py              # IR data models (Pydantic)
+│   ├── ir_parsers.py             # DSPy parser modules (Stage 1-3)
+│   ├── text_to_ir.py             # Text-to-IR main pipeline
 │   ├── sql_compiler.py           # IR → SQL compiler with JOIN resolution
-│   └── nl2sql_pipeline.py        # End-to-end pipeline orchestration
+│   ├── nl2sql_pipeline.py        # End-to-end pipeline orchestration
+│   └── clause_deconstructor.py   # Compatibility layer (deprecated)
 ├── tests/
 │   └── test_pipeline.py          # Integration tests
 └── data/
