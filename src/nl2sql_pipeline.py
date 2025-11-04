@@ -15,10 +15,10 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any
 from pydantic import BaseModel
 
+from src.sql_compiler import SQLCompiler
 from .text_to_ir import TextToIR_Pydantic_Complete
 from .ir_models import NL2SQL_IR
 from .llm_config import configure_azure_openai
-from sql_compiler import SQLCompiler
 
 
 class EntityMapLoader:

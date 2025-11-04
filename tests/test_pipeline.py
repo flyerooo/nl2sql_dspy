@@ -8,11 +8,12 @@
 import sys
 from pathlib import Path
 
+from src.llm_config import configure_azure_openai
+from src.nl2sql_pipeline import NL2SQLPipeline
+
 # 添加 src 目录到 Python 路径
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from nl2sql_pipeline import NL2SQLPipeline
-from llm_config import configure_azure_openai
 
 
 def setup_llm():

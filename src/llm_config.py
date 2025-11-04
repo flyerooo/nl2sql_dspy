@@ -33,7 +33,8 @@ def configure_azure_openai():
         api_base=azure_endpoint,
         api_version=api_version,
         api_key=api_key,
-        max_tokens=4096
+        temperature=1.0,
+        max_tokens=16000
     )
     
     # 配置为默认 LM
