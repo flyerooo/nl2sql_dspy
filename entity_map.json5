@@ -1,0 +1,182 @@
+{
+  // ============================================================================
+  // 语义层配置 (Semantic Layer)
+  // ============================================================================
+  // 这个文件定义了业务实体到物理数据库结构的映射
+  
+  // --- 实体定义 (Entities) ---
+  // 实体是业务概念(如"产品名称"、"销售额")到物理表列的映射
+  "entities": {
+    
+    // === 产品表实体 ===
+    "product_id": {
+      "table": "products",
+      "column": "id",
+      "type": "attribute",
+      "description": "产品唯一标识"
+    },
+    
+    "product_name": {
+      "table": "products",
+      "column": "name",
+      "type": "attribute",
+      "description": "产品名称"
+    },
+    
+    "product_category": {
+      "table": "products",
+      "column": "category",
+      "type": "attribute",
+      "description": "产品类别"
+    },
+    
+    // === 客户表实体 ===
+    "customer_id": {
+      "table": "customers",
+      "column": "id",
+      "type": "attribute",
+      "description": "客户唯一标识"
+    },
+    
+    "customer_name": {
+      "table": "customers",
+      "column": "name",
+      "type": "attribute",
+      "description": "客户名称"
+    },
+    
+    "region": {
+      "table": "customers",
+      "column": "region",
+      "type": "attribute",
+      "description": "客户所在地区"
+    },
+    
+    "customer_level": {
+      "table": "customers",
+      "column": "customer_level",
+      "type": "attribute",
+      "description": "客户等级 (VIP/普通)"
+    },
+    
+    // === 订单表实体 ===
+    "order_id": {
+      "table": "orders",
+      "column": "id",
+      "type": "attribute",
+      "description": "订单唯一标识"
+    },
+    
+    "order_date": {
+      "table": "orders",
+      "column": "order_date",
+      "type": "attribute",
+      "description": "订单日期"
+    },
+    
+    "order_status": {
+      "table": "orders",
+      "column": "status",
+      "type": "attribute",
+      "description": "订单状态"
+    },
+    
+    // === 订单明细表实体 ===
+    "quantity": {
+      "table": "order_items",
+      "column": "quantity",
+      "type": "attribute",
+      "description": "商品数量"
+    },
+    
+    "unit_price": {
+      "table": "order_items",
+      "column": "unit_price",
+      "type": "attribute",
+      "description": "单价"
+    },
+    
+    // === 计算型实体(指标) ===
+    // 这些实体不直接对应单个列,而是由表达式计算得出
+    
+    "sales_amount": {
+      "expression": "order_items.quantity * order_items.unit_price",
+      "tables_needed": ["order_items"],
+      "type": "metric",
+      "description": "销售额 = 数量 × 单价"
+    },
+    
+    "avg_price": {
+      "expression": "order_items.unit_price",
+      "tables_needed": ["order_items"],
+      "type": "metric",
+      "description": "平均价格(需要配合AVG聚合使用)"
+    },
+    
+    "customer_count": {
+      "expression": "customers.id",
+      "tables_needed": ["customers"],
+      "type": "metric",
+      "description": "客户数量(需要配合COUNT聚合使用)"
+    }
+  },
+  
+  // --- 外键关系 (Foreign Keys) ---
+  // 定义表之间的关系,用于自动生成 JOIN 语句
+  "foreign_keys": [
+    {
+      "from_table": "order_items",
+      "from_column": "order_id",
+      "to_table": "orders",
+      "to_column": "id",
+      "description": "订单明细 → 订单"
+    },
+    {
+      "from_table": "order_items",
+      "from_column": "product_id",
+      "to_table": "products",
+      "to_column": "id",
+      "description": "订单明细 → 产品"
+    },
+    {
+      "from_table": "orders",
+      "from_column": "customer_id",
+      "to_table": "customers",
+      "to_column": "id",
+      "description": "订单 → 客户"
+    }
+  ],
+  
+  // --- 枚举值 (Enum Values) ---
+  // 定义某些属性的合法取值范围,帮助 LLM 进行值的规范化
+  "enum_values": {
+    "region": [
+      "中国",
+      "美国",
+      "日本",
+      "欧洲",
+      "东南亚"
+    ],
+    
+    "customer_level": [
+      "VIP",
+      "普通"
+    ],
+    
+    "order_status": [
+      "待付款",
+      "已付款",
+      "已发货",
+      "已完成",
+      "已取消"
+    ],
+    
+    "product_category": [
+      "电子产品",
+      "服装",
+      "食品",
+      "图书",
+      "家居"
+    ]
+  }
+}

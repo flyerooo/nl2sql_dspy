@@ -1,0 +1,142 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Text-to-SQL Intermediate Representation (IR)",
+  "type": "object",
+  "properties": {
+    "intent": {
+      "description": "LLM 对用户主要意图的分类 (可选, 但推荐)",
+      "type": "string",
+      "examples": ["get_data_list", "get_aggregation", "get_count"]
+    },
+
+    "projections": {
+      "description": "用户想要查询和看到的'字段' (对应 SELECT)",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": ["entity", "aggregation"],
+            "default": "entity"
+          },
+          "entity": {
+            "description": "语义实体的名称",
+            "type": "string",
+            "examples": ["product_name", "sales_amount"]
+          },
+          "op": {
+            "description": "聚合操作 (如果 type 是 'aggregation')",
+            "type": "string",
+            "enum": ["SUM", "COUNT", "AVG", "MAX", "MIN", "COUNT_DISTINCT"]
+          },
+          "alias": {
+            "description": "该字段的别名，用于排序或HAVING",
+            "type": "string",
+            "examples": ["total_sales", "product_count"]
+          }
+        },
+        "required": ["type", "entity"]
+      }
+    },
+
+    "filters": {
+      "description": "过滤条件 (对应 WHERE)，这是一个递归树结构",
+      "type": "object",
+      "properties": {
+        "operator": {
+          "enum": ["AND", "OR"],
+          "default": "AND"
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              { "$ref": "#/properties/filters" }, // 递归，允许 A AND (B OR C)
+              {
+                "type": "object",
+                "properties": {
+                  "entity": {
+                    "description": "要过滤的语义实体",
+                    "type": "string",
+                    "examples": ["region", "order_date"]
+                  },
+                  "op": {
+                    "description": "比较操作符 (可以是字面的，也可以是语义的)",
+                    "type": "string",
+                    "examples": ["EQUAL", "NOT_EQUAL", "GREATER_THAN", "IN", "LAST_MONTH", "THIS_YEAR"]
+                  },
+                  "value": {
+                    "description": "比较的值",
+                    "type": ["string", "number", "boolean", "array"]
+                  }
+                },
+                "required": ["entity", "op", "value"]
+              }
+            ]
+          }
+        }
+      }
+    },
+
+    "group_by": {
+      "description": "分组依据 (对应 GROUP BY)",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "description": "用于分组的语义实体",
+            "type": "string",
+            "examples": ["product_name", "region"]
+          }
+        },
+        "required": ["entity"]
+      }
+    },
+
+    "having": {
+      "description": "聚合后的过滤条件 (对应 HAVING)",
+      "type": "object",
+      "properties": {
+        // 结构与 'filters' 完全相同,
+        // 只是 'entity' 字段会引用 'projections' 中定义的 'alias'
+      },
+      "examples": [{
+        "operator": "AND",
+        "conditions": [
+          { "entity_alias": "total_sales", "op": "GREATER_THAN", "value": 1000 }
+        ]
+      }]
+    },
+
+    "order_by": {
+      "description": "排序依据 (对应 ORDER BY)",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "description": "排序字段 (可以是实体名或别名)",
+            "type": "string",
+            "examples": ["product_name", "total_sales"]
+          },
+          "direction": {
+            "enum": ["ASC", "DESC"],
+            "default": "ASC"
+          }
+        },
+        "required": ["field"]
+      }
+    },
+
+    "limit": {
+      "description": "返回的条数 (对应 LIMIT)",
+      "type": "integer"
+    },
+    "offset": {
+      "description": "偏移量 (对应 OFFSET)",
+      "type": "integer"
+    }
+  },
+  "required": ["projections"]
+}
