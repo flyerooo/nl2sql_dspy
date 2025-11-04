@@ -51,7 +51,7 @@ Open `tests/test_pipeline.py` and execute specific test functions:
 The system decouples LLM understanding from SQL generation through a structured IR:
 
 **Stage 1: ClauseDeconstructor** (`ir_parsers.py`)
-- Uses `dspy.TypedPredictor` to parse NL query into `DeconstructedClauses` Pydantic model
+- Uses `dspy.Predict` with Pydantic models to parse NL query into `DeconstructedClauses`
 - Extracts: projections, group_by, order_by, limit, offset
 - Defers complex parsing by outputting NL strings for filters/having
 
@@ -99,10 +99,12 @@ The system decouples LLM understanding from SQL generation through a structured 
 
 ### DSPy Integration
 
-- Uses `dspy.TypedPredictor` with Pydantic models for type-safe LLM outputs
+- Uses `dspy.Predict` (DSPy 3.0+) with Pydantic models for type-safe LLM outputs
 - Automatic JSON validation and retry on parsing failures
 - Supports optimization with `BootstrapFewShot` for few-shot learning
 - Configure LLM in pipeline scripts before execution
+
+**Note:** This project uses DSPy 3.0+. The API changed from `dspy.TypedPredictor` (v2.x) to `dspy.Predict` (v3.0+).
 
 ## LLM Configuration
 
@@ -196,7 +198,7 @@ nl2sql_dspy/
 
 ## Development Notes
 
-- **TypedPredictor**: Always use with Pydantic models for type-safe LLM outputs
+- **dspy.Predict**: DSPy 3.0+ uses `dspy.Predict` (not `TypedPredictor`) with Pydantic models for type-safe LLM outputs
 - **FilterGroup recursion**: Pydantic v2 handles forward references automatically
 - **JOIN algorithm**: BFS graph traversal finds minimal spanning tree of required tables
 - **Security**: Current SQL compiler is prototype-level; use parameterized queries for production

@@ -44,14 +44,14 @@ class DeconstructQueryTypedSignature(dspy.Signature):
 class ClauseDeconstructor(dspy.Module):
     """
     一个 dspy.Module，它安全地将 NL 查询分解为 DeconstructedClauses。
-    它在内部使用 TypedPredictor 来确保输出始终是一个有效的 Pydantic 对象，
+    它在内部使用 dspy.Predict 来确保输出始终是一个有效的 Pydantic 对象，
     自动处理 JSON 验证和重试。
     """
 
     def __init__(self):
         super().__init__()
-        # 使用 TypedPredictor 来保证输出与 Pydantic 模型匹配
-        self.predictor = dspy.TypedPredictor(DeconstructQueryTypedSignature)
+        # 使用 Predict 来保证输出与 Pydantic 模型匹配
+        self.predictor = dspy.Predict(DeconstructQueryTypedSignature)
 
     def forward(self, nl_query, candidate_metrics, candidate_attributes, attribute_enum_values) -> DeconstructedClauses:
         result = self.predictor(
@@ -95,7 +95,7 @@ class FilterParser(dspy.Module):
 
     def __init__(self):
         super().__init__()
-        self.parser = dspy.TypedPredictor(ParseFilterTypedSignature)
+        self.parser = dspy.Predict(ParseFilterTypedSignature)
 
     def forward(self, filter_nl_string, candidate_attributes, attribute_enum_values) -> FilterGroup:
         result = self.parser(
@@ -139,7 +139,7 @@ class HavingParser(dspy.Module):
 
     def __init__(self):
         super().__init__()
-        self.parser = dspy.TypedPredictor(ParseHavingTypedSignature)
+        self.parser = dspy.Predict(ParseHavingTypedSignature)
 
     def forward(self, having_nl_string, projection_aliases, candidate_metrics, candidate_attributes,
                 attribute_enum_values) -> FilterGroup:
