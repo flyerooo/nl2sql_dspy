@@ -9,21 +9,30 @@ NL2SQL-IR is a Text-to-SQL system using an Intermediate Representation (IR) arch
 2. **IR Generation** - Uses LLM to construct structured intermediate representation
 3. **SQL Compilation** - Deterministically compiles IR to SQL with automatic JOIN path resolution
 
+## Python Environment
+
+**Default Environment:** `conda activate ml310`
+
+All development and testing should be done in this conda environment.
+
 ## Common Commands
 
 ### Installation
 ```pwsh
+conda activate ml310
 pip install dspy-ai pydantic json5
 ```
 
 ### Run Main Pipeline
 ```pwsh
+conda activate ml310
 cd src
 python nl2sql_pipeline.py
 ```
 
 ### Run Tests
 ```pwsh
+conda activate ml310
 cd tests
 python test_pipeline.py
 ```
